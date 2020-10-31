@@ -5,8 +5,9 @@ import '../models/meal.dart';
 
 class MealItem extends StatelessWidget {
   final Meal meal;
+  final Function removeItem;
 
-  const MealItem({Key key, this.meal}) : super(key: key);
+  const MealItem({Key key, this.meal, this.removeItem}) : super(key: key);
 
   String get complexityText {
     if (meal.complexity == Complexity.Simple) {
@@ -38,7 +39,9 @@ class MealItem extends StatelessWidget {
       Navigator.of(context).pushNamed(
         MealDetailScreen.id,
         arguments: {'meal': meal},
-      );
+      ).then((value) => {
+            if (value != null) {removeItem(value)}
+          });
     }
 
     return InkWell(

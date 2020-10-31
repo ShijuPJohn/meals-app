@@ -3,6 +3,12 @@ import 'package:meals_app/models/meal.dart';
 
 class MealDetailScreen extends StatelessWidget {
   static const id = 'meal_detail_screen';
+  final Function toggleFavorite;
+  final Function isMealFavorite;
+
+  const MealDetailScreen(
+      {Key key, @required this.toggleFavorite, @required this.isMealFavorite})
+      : super(key: key);
 
   Widget buildSectionTitle(BuildContext context, String title) {
     return Container(
@@ -34,73 +40,83 @@ class MealDetailScreen extends StatelessWidget {
     final routeArgs =
         ModalRoute.of(context).settings.arguments as Map<String, Meal>;
     return Scaffold(
-        appBar: AppBar(
-          title: Text(routeArgs['meal'].title),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                height: 300.0,
-                child: Image.network(
-                  routeArgs['meal'].imageUrl,
-                  fit: BoxFit.cover,
+      appBar: AppBar(
+        title: Text(routeArgs['meal'].title),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              height: 300.0,
+              child: Image.network(
+                routeArgs['meal'].imageUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(10.0),
+              color: Color.fromRGBO(0, 0, 50, 0.7),
+              child: Text(
+                routeArgs['meal'].title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 30.0,
+                  color: Colors.white,
                 ),
               ),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(10.0),
-                color: Color.fromRGBO(0, 0, 50, 0.7),
-                child: Text(
-                  routeArgs['meal'].title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 30.0,
-                    color: Colors.white,
+            ),
+            buildSectionTitle(context, 'Ingredients'),
+            buildListItem(
+              context,
+              ListView.builder(
+                itemBuilder: (ctx, index) => Card(
+                  color: Theme.of(context).accentColor,
+                  child: Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(
+                      routeArgs['meal'].ingredients[index],
+                      style: TextStyle(fontSize: 18.0),
+                    ),
                   ),
                 ),
+                itemCount: routeArgs['meal'].ingredients.length,
               ),
-              buildSectionTitle(context, 'Ingredients'),
-              buildListItem(
-                context,
-                ListView.builder(
-                  itemBuilder: (ctx, index) => Card(
-                    color: Theme.of(context).accentColor,
-                    child: Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Text(
-                        routeArgs['meal'].ingredients[index],
+            ),
+            buildSectionTitle(context, 'Method'),
+            buildListItem(
+              context,
+              ListView.builder(
+                itemBuilder: (ctx, index) => Column(
+                  children: [
+                    ListTile(
+                      leading: CircleAvatar(
+                        child: Text('#${index + 1}'),
+                      ),
+                      title: Text(
+                        routeArgs['meal'].steps[index],
                         style: TextStyle(fontSize: 18.0),
                       ),
                     ),
-                  ),
-                  itemCount: routeArgs['meal'].ingredients.length,
+                    Divider(),
+                  ],
                 ),
+                itemCount: routeArgs['meal'].steps.length,
               ),
-              buildSectionTitle(context, 'Method'),
-              buildListItem(
-                context,
-                ListView.builder(
-                  itemBuilder: (ctx, index) => Column(
-                    children: [
-                      ListTile(
-                        leading: CircleAvatar(
-                          child: Text('#${index+1}'),
-                        ),
-                        title: Text(
-                          routeArgs['meal'].steps[index],
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                      ),
-                      Divider(),
-                    ],
-                  ),
-                  itemCount: routeArgs['meal'].steps.length,
-                ),
-              ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: isMealFavorite(routeArgs['meal'].id)
+            ? Icon(Icons.star_border)
+            : Icon(Icons.star),
+        backgroundColor: Theme.of(context).primaryColor,
+        onPressed: () {
+          toggleFavorite(routeArgs['meal'].id);
+        },
+      ),
+    );
   }
 }
